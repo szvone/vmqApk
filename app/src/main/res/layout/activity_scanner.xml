@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/toolbar_scanner" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/scanner_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+
+        <com.google.zxing.view.ViewfinderView
+            android:id="@+id/viewfinder_content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:corner_color="@color/corner_color"
+            app:frame_color="@color/viewfinder_frame"
+            app:label_text="二维码/条形码扫描"
+            app:label_text_color="@color/colorAccent"
+            app:laser_color="@color/laser_color"
+            app:mask_color="@color/viewfinder_mask"
+            app:result_color="@color/result_view"
+            app:result_point_color="@color/result_point_color" />
+
+        <ImageButton
+            android:id="@+id/btn_flash"
+            android:layout_width="40dip"
+            android:layout_height="40dip"
+            android:padding="6dip"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="30dip"
+            android:background="?attr/selectableItemBackground"
+            android:scaleType="centerInside"
+            android:src="@drawable/flash_off" />
+    </FrameLayout>
+
+</LinearLayout>
