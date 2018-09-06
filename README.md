@@ -1,7 +1,7 @@
 # Android实现二维码扫描功能
 
 ![platform](https://img.shields.io/badge/platform-Android-lightgrey.svg)
-![Gradle](https://img.shields.io/badge/Gradle-3.1.2-brightgreen.svg)
+![Gradle](https://img.shields.io/badge/Gradle-2.3.2-brightgreen.svg)
 ![ide](https://img.shields.io/badge/IDE-Android%20Studio-brightgreen.svg)
 ![progress](http://progressed.io/bar/100?title=completed)
 [![last commit](https://img.shields.io/github/last-commit/ahuyangdong/QrCodeDemo4.svg)](https://github.com/ahuyangdong/QrCodeDemo4/commits/master)
