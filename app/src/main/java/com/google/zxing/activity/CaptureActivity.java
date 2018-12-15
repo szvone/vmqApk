@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dommy.qrcode.R;
+import com.dommy.qrcode.util.BitmapUtil;
 import com.dommy.qrcode.util.Constant;
 import com.dommy.qrcode.util.UriUtil;
 import com.google.zxing.BarcodeFormat;
@@ -142,7 +143,7 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
      */
     private void handleAlbumPic(Intent data) {
         //获取选中图片的路径
-        photo_path = UriUtil.getRealPathFromUri(CaptureActivity.this, data.getData());
+        final Uri uri = data.getData();
 
         mProgress = new ProgressDialog(CaptureActivity.this);
         mProgress.setMessage("正在扫描...");
@@ -152,8 +153,8 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Result result = scanningImage(uri);
                 mProgress.dismiss();
-                Result result = scanningImage(photo_path);
                 if (result != null) {
                     Intent resultIntent = new Intent();
                     Bundle bundle = new Bundle();
@@ -171,25 +172,17 @@ public class CaptureActivity extends AppCompatActivity implements Callback {
 
     /**
      * 扫描二维码图片的方法
-     * @param path
+     * @param uri
      * @return
      */
-    public Result scanningImage(String path) {
-        if(TextUtils.isEmpty(path)){
+    public Result scanningImage(Uri uri) {
+        if (uri == null) {
             return null;
         }
         Hashtable<DecodeHintType, String> hints = new Hashtable<>();
         hints.put(DecodeHintType.CHARACTER_SET, "UTF8"); //设置二维码内容的编码
 
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true; // 先获取原大小
-        scanBitmap = BitmapFactory.decodeFile(path, options);
-        options.inJustDecodeBounds = false; // 获取新的大小
-        int sampleSize = (int) (options.outHeight / (float) 200);
-        if (sampleSize <= 0)
-            sampleSize = 1;
-        options.inSampleSize = sampleSize;
-        scanBitmap = BitmapFactory.decodeFile(path, options);
+        scanBitmap = BitmapUtil.decodeUri(this, uri, 500, 500);
         RGBLuminanceSource source = new RGBLuminanceSource(scanBitmap);
         BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
         QRCodeReader reader = new QRCodeReader();

@@ -11,8 +11,11 @@ import android.provider.MediaStore;
 
 /**
  * Uri路径工具
+ *
+ * @Deprecated 该方法存在终端适配问题，较为麻烦，已经弃用，新方法为BitmapUtil
+ * @see BitmapUtil
  */
-
+@Deprecated
 public class UriUtil {
     /**
      * 根据图片的Uri获取图片的绝对路径(适配多种API)

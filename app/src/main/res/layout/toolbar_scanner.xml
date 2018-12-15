@@ -16,6 +16,7 @@
             android:id="@+id/btn_back"
             android:layout_width="40dip"
             android:layout_height="40dip"
+            android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackground"
             android:padding="10dip"
             android:scaleType="centerCrop"
