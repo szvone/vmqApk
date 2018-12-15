@@ -14,7 +14,7 @@
 ## 源码讲解
 见系列博客：https://blog.csdn.net/column/details/19771.html
 
-源码同csdn：https://download.csdn.net/download/ahuyangdong/9945499 下载的版本一致
+源码比csdn：https://download.csdn.net/download/ahuyangdong/9945499 版本更新了：文件路径适配新方法、添加读写权限申请代码（可选）。
 
 ## 致谢
 
