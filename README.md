@@ -1,29 +1,56 @@
-# Android实现二维码扫描功能
+【此为V免签监控端源码】
 
-![platform](https://img.shields.io/badge/platform-Android-lightgrey.svg)
-![Gradle](https://img.shields.io/badge/Gradle-2.3.2-brightgreen.svg)
-![ide](https://img.shields.io/badge/IDE-Android%20Studio-brightgreen.svg)
-![progress](http://progressed.io/bar/100?title=completed)
-[![last commit](https://img.shields.io/github/last-commit/ahuyangdong/QrCodeDemo4.svg)](https://github.com/ahuyangdong/QrCodeDemo4/commits/master)
-![repo size](https://img.shields.io/github/repo-size/ahuyangdong/QrCodeDemo4.svg)
-[![Licence](https://img.shields.io/github/license/ahuyangdong/QrCodeDemo4.svg)](https://github.com/ahuyangdong/QrCodeDemo4/blob/master/LICENSE)
+V免签  —— 个人开发者收款解决方案
+===============
 
-以ZXing开源项目包作为Android应用程序扫码的插件，从ZXing接入、识别二维码效率优化、开关闪光灯、图片二维码识别的角度对ZXing集成展开介绍，并上传了相关项目代码，可供参考。
-## 界面效果预览
-![扫码效果图](https://github.com/ahuyangdong/QrCodeDemo4/blob/master/demo.gif)
-## 源码讲解
-见系列博客：https://blog.csdn.net/column/details/19771.html
 
-源码比csdn：https://download.csdn.net/download/ahuyangdong/9945499 版本更新了：文件路径适配新方法、添加读写权限申请代码（可选）。
+V免签 是基于SpringBoot 2.1.1 实现的一套免签支付程序，主要包含以下特色：
 
-## 致谢
+ + 使用H2-Database，仅需安装Java环境，简单配置，一键搭建
+ + 超简单Api使用，提供统一Api实现收款回调
+ + 免费、开源
 
-- ZXing
+> V免签的运行环境为JDK版本1.8。
 
-[![Zxing](https://camo.githubusercontent.com/cd92fcc87ebc531c60edc667da4a77b90c004ff0/68747470733a2f2f7261772e6769746875622e636f6d2f77696b692f7a78696e672f7a78696e672f7a78696e672d6c6f676f2e706e67)](https://github.com/zxing/zxing)
+> V免签仅供个人开发者调试测试使用，请勿用于非法用途，商用请您申请官方商户接口
 
-- HappyMiao/QrCodeScan
+## 安装
 
-https://www.jianshu.com/p/e80a85b17920
+ + 下载已经编译好的war,位于GitHub的releases中
+ + 确认本机已经拥有java的运行环境（JDK>=1.8）,如果没有，请您安装java的运行环境
+ + 在war包的同级目录，在控制台输入启动命令 java -jar v.war
+    + 请将v.war替换成您下载的war包的名字
+    + 如果您需要自定义项目的运行端口，请您在启动的时候使用：java -jar v.war --server.port=9090 (9090可以替换成任意端口)
+ + 打开浏览器，访问 localhost:8080
+ + 点击系统设置，进入设置页面，修改系统的默认配置
+ + 下载V免签监控端到安卓手机或安卓模拟器，开启辅助服务，实现收款回调功能
+ + 默认管理账号为：admin
+ + 默认通讯密钥为：admin
+ + 保存配置后，即可开始使用
 
-https://github.com/HappyMiao/QrCodeScan
+
+ > 升级说明：请您直接下载新版本覆盖旧版本即可！
+
+
+## 说明
+ + 请部署完成后访问后台，有详细的Api说明
+
+
+## 注意
+
+  + 本系统原理为监控收款后手机的通知栏推送消息，所以请保持微信/支付宝/V免签监控端后台正常运行，且添加到内存清理白名单！
+
+## 更新记录
+
+ + v1.0（2019.01.31）
+   + 初版发布
+
+## 版权信息
+
+V免签遵循 MIT License 开源协议发布，并提供免费使用，请勿用于非法用途。
+
+
+版权所有Copyright © 2019 by vone (http://szvone.cn)
+
+All rights reserved。
+

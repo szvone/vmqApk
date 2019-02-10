@@ -1,4 +1,4 @@
-package com.dommy.qrcode.util;
+package com.dommy.vmq.util;
 
 /**
  * 常量

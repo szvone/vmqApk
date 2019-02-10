@@ -5,20 +5,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.dommy.qrcode.MainActivity">
+    tools:context="com.dommy.vmq.MainActivity">
 
     <include layout="@layout/toolbar_main" />
 
-    <Button
-        android:id="@+id/btn_qrcode"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/txt_host"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="开始扫码" />
+
+        android:baselineAligned="false"
+        android:text=" 通知地址：请扫码配置" />
 
     <TextView
-        android:id="@+id/txt_result"
-        android:layout_width="wrap_content"
+        android:id="@+id/txt_key"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="扫描结果" />
+        android:text=" 通讯密钥：请扫码配置" />
+
+
+    <Button
+        android:id="@+id/btn_qrcode"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="扫码配置" />
+    <Button
+        android:id="@+id/btn_input"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="手动配置" />
+    <Button
+        android:id="@+id/btn_start"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:onClick="doStart"
+        android:text="开启服务" />
+
+
 </LinearLayout>

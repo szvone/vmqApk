@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             app:corner_color="@color/corner_color"
             app:frame_color="@color/viewfinder_frame"
-            app:label_text="二维码/条形码扫描"
+            app:label_text="请扫描网站上的二维码"
             app:label_text_color="@color/colorAccent"
             app:laser_color="@color/laser_color"
             app:mask_color="@color/viewfinder_mask"

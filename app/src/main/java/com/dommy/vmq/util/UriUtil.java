@@ -1,4 +1,4 @@
-package com.dommy.qrcode.util;
+package com.dommy.vmq.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;

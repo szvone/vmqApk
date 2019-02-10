@@ -1,4 +1,4 @@
-package com.dommy.qrcode.util;
+package com.dommy.vmq.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
