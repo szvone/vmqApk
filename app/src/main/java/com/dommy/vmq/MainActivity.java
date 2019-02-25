@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         //步骤1：创建一个SharedPreferences接口对象
-        SharedPreferences read = getSharedPreferences("vone", MODE_WORLD_READABLE);
+        SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         //步骤2：获取文件中的值
         host = read.getString("host", "");
         key = read.getString("key", "");
@@ -140,6 +141,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 });
+                if (tmp[0].indexOf("localhost")>=0){
+                    Toast.makeText(MainActivity.this, "配置信息错误，本机调试请访问 本机局域网IP:8080(如192.168.1.101:8080) 获取配置信息进行配置!", Toast.LENGTH_LONG).show();
+
+                    return;
+                }
                 //将扫描出的信息显示出来
                 txthost.setText(" 通知地址："+tmp[0]);
                 txtkey.setText(" 通讯密钥："+tmp[1]);
@@ -147,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 key = tmp[1];
 
                 //步骤2-1：创建一个SharedPreferences.Editor接口对象，lock表示要写入的XML文件名，MODE_WORLD_WRITEABLE写操作
-                SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_WORLD_WRITEABLE).edit();
+                SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
                 //步骤2-2：将获取过来的值放入文件
                 editor.putString("host", host);
                 editor.putString("key", key);
@@ -203,7 +209,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             btnStart.setText("检测服务状态");
             Toast.makeText(MainActivity.this, "开启成功!", Toast.LENGTH_SHORT).show();
         }else{
-            Toast.makeText(MainActivity.this, "程序运行正常!", Toast.LENGTH_SHORT).show();
+
+            String t = String.valueOf(new Date().getTime());
+            String sign = md5(t+key);
+
+            //1.创建OkHttpClient对象
+            OkHttpClient okHttpClient = new OkHttpClient();
+            //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
+            Request request = new Request.Builder().url("http://"+host+"/appHeart?t="+t+"&sign="+sign).method("GET",null).build();
+            //3.创建一个call对象,参数就是Request请求对象
+            Call call = okHttpClient.newCall(request);
+            //4.请求加入调度，重写回调方法
+            call.enqueue(new Callback() {
+                //请求失败执行的方法
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Looper.prepare();
+                    Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
+                //请求成功执行的方法
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    //Log.d(TAG, "onResponse heard: "+response.body().string());
+                    Looper.prepare();
+                    Toast.makeText(MainActivity.this, "程序运行正常，心跳返回："+response.body().string(), Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                }
+            });
+
+
+
         }
     }
     private boolean isAccessibilitySettingsOn(Context mContext) {
@@ -324,13 +360,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         //请求失败执行的方法
                         @Override
                         public void onFailure(Call call, IOException e) {
-
+                            Looper.prepare();
+                            Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
                         }
                         //请求成功执行的方法
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
                             Log.d(TAG, "onResponse heard: "+response.body().string());
-
+                            Looper.prepare();
+                            //Toast.makeText(MainActivity.this, "心跳正常", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
                         }
                     });
                     try {

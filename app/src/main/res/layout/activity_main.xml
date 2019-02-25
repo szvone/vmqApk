@@ -5,11 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.dommy.vmq.MainActivity">
+    tools:context="com.dommy.vmq.MainActivity"
+
+    >
 
     <include layout="@layout/toolbar_main" />
 
     <TextView
+        android:paddingTop="20dp"
+        android:paddingBottom="10dp"
+
         android:id="@+id/txt_host"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -18,6 +23,7 @@
         android:text=" 通知地址：请扫码配置" />
 
     <TextView
+        android:paddingBottom="20dp"
         android:id="@+id/txt_key"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

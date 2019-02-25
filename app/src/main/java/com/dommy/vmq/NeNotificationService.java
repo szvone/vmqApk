@@ -49,6 +49,11 @@ public class NeNotificationService extends AccessibilityService {
                             Log.d(TAG, "onAccessibilityEvent: 匹配成功： 支付宝 到账 "+money);
                             appPush(2,Double.valueOf(money));
 
+                        }else if (text.indexOf("成功收款")!=-1){
+                            String money = getSubString(text,"成功收款","元");
+                            Log.d(TAG, "onAccessibilityEvent: 匹配成功： 支付宝 到账 "+money);
+                            appPush(2,Double.valueOf(money));
+
                         }
                     }
                 }
