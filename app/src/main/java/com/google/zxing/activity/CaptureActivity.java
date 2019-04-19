@@ -21,9 +21,9 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.dommy.qrcode.R;
-import com.dommy.vmq.util.BitmapUtil;
-import com.dommy.vmq.util.Constant;
+import com.vone.qrcode.R;
+import com.vone.vmq.util.BitmapUtil;
+import com.vone.vmq.util.Constant;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.ChecksumException;

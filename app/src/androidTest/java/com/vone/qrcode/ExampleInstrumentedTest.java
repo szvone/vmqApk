@@ -1,4 +1,4 @@
-package com.dommy.qrcode;
+package com.vone.qrcode;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.dommy.qrcode", appContext.getPackageName());
+        assertEquals("com.vone.qrcode", appContext.getPackageName());
     }
 }

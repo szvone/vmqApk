@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion "26.0.0"
     defaultConfig {
-        applicationId "com.dommy.qrcode"
+        applicationId "com.vone.qrcode"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.dommy.qrcode">
+    package="com.vone.qrcode">
 
     <uses-permission android:name="android.permission.INTERNET" /> <!-- 网络权限 -->
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 震动权限 -->
@@ -9,14 +9,14 @@
     <uses-feature android:name="android.hardware.camera.autofocus" /> <!-- 自动聚焦权限 -->
 
     <application
-        android:name="com.dommy.vmq.MyData"
+        android:name="com.vone.vmq.MyData"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.dommy.vmq.MainActivity">
+        <activity android:name="com.vone.vmq.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -27,7 +27,7 @@
         <activity
             android:name="com.google.zxing.activity.CaptureActivity"/>
 
-        <service android:name="com.dommy.vmq.NeNotificationService"
+        <service android:name="com.vone.vmq.NeNotificationService"
             android:enabled="true"
             android:exported="true"
             android:label="V免签监控服务"

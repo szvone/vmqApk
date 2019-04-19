@@ -32,7 +32,7 @@ import android.graphics.SweepGradient;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.dommy.qrcode.R;
+import com.vone.qrcode.R;
 import com.google.zxing.ResultPoint;
 import com.google.zxing.camera.CameraManager;
 

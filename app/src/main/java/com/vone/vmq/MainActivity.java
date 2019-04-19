@@ -1,17 +1,21 @@
-package com.dommy.vmq;
+package com.vone.vmq;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -21,8 +25,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.dommy.qrcode.R;
-import com.dommy.vmq.util.Constant;
+import com.vone.qrcode.R;
+import com.vone.vmq.util.Constant;
 import com.google.zxing.activity.CaptureActivity;
 
 import java.io.IOException;
@@ -36,10 +40,10 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    Button btnQrCode; // 扫码
-    Button btnStart; // 扫码
-    Button btnInput; // 扫码
+public class MainActivity extends AppCompatActivity{
+    Button btnQrCode;
+    Button btnStart;
+    Button btnInput;
 
     TextView txthost; // 结果
     TextView txtkey; // 结果
@@ -50,19 +54,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static String host;
     public static String key;
 
+    int id = 0;
 
-    private Thread newThread = null; //声明一个子线程
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initView();
+
+        //初始化界面
+        btnQrCode = (Button) findViewById(R.id.btn_qrcode);//扫码配置
+        btnInput = (Button) findViewById(R.id.btn_input);//手动配置
+
+        btnStart = (Button) findViewById(R.id.btn_start);//开启服务
+
+        txthost = (TextView) findViewById(R.id.txt_host);
+        txtkey = (TextView) findViewById(R.id.txt_key);
 
 
-        //步骤1：创建一个SharedPreferences接口对象
+        //检测服务是否在线
+        if(isAccessibilitySettingsOn(this)){
+            btnStart.setText("检测服务状态");
+        }
+
+
+        //读入保存的配置数据并显示
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
-        //步骤2：获取文件中的值
         host = read.getString("host", "");
         key = read.getString("key", "");
 
@@ -70,37 +87,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             txthost.setText(" 通知地址："+host);
             txtkey.setText(" 通讯密钥："+key);
             isOk = true;
-            initAppHeart();
         }
 
 
 
     }
-
-    private void initView() {
-        btnQrCode = (Button) findViewById(R.id.btn_qrcode);
-        btnQrCode.setOnClickListener(this);
-        btnStart = (Button) findViewById(R.id.btn_start);
-        btnStart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                doStart(view);
-            }
-        });
-
-        btnInput =  (Button) findViewById(R.id.btn_input);
-        btnInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                doInput(view);
-            }
-        });
-
-        txthost = (TextView) findViewById(R.id.txt_host);
-        txtkey = (TextView) findViewById(R.id.txt_key);
-
+    //扫码配置
+    public void startQrCode(View v) {
+        // 申请相机权限
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // 申请权限
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, Constant.REQ_PERM_CAMERA);
+            return;
+        }
+        // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 申请权限
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constant.REQ_PERM_EXTERNAL_STORAGE);
+            return;
+        }
+        // 二维码扫码
+        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
+        startActivityForResult(intent, Constant.REQ_QR_CODE);
     }
-
+    //手动配置
     public void doInput(View v){
         final EditText inputServer = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -160,40 +170,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //步骤3：提交
                 editor.commit();
 
-                initAppHeart();
             }
         });
         builder.show();
 
     }
-
-    // 开始扫码
-    private void startQrCode() {
-        // 申请相机权限
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // 申请权限
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, Constant.REQ_PERM_CAMERA);
-            return;
-        }
-        // 申请文件读写权限（部分朋友遇到相册选图需要读写权限的情况，这里一并写一下）
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // 申请权限
-            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Constant.REQ_PERM_EXTERNAL_STORAGE);
-            return;
-        }
-        // 二维码扫码
-        Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-        startActivityForResult(intent, Constant.REQ_QR_CODE);
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_qrcode:
-                startQrCode();
-                break;
-        }
-    }
+    //启动服务
     public void doStart(View view) {
         if (isOk==false){
             Toast.makeText(MainActivity.this, "请您先配置!", Toast.LENGTH_SHORT).show();
@@ -242,6 +224,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         }
     }
+
+
+
     private boolean isAccessibilitySettingsOn(Context mContext) {
         int accessibilityEnabled = 0;
         // TestService为对应的服务
@@ -279,6 +264,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         return false;
     }
+
+
+
+
+
+
+
+    public void checkPush(View v){
+        Notification mNotification;
+        NotificationManager mNotificationManager;
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        mNotification = new NotificationCompat.Builder(this)
+                // 设置小图标
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setTicker("这是一条测试推送信息")
+                // 设置标题
+                .setContentTitle("V免签测试推送")
+                // 设置内容
+                .setContentText("这是一条测试推送信息")
+                // 设置Notification提示铃声为系统默认铃声
+                .setSound(
+                        RingtoneManager.getActualDefaultRingtoneUri(
+                                getBaseContext(),
+                                RingtoneManager.TYPE_NOTIFICATION))
+
+                // 点击Notification的时候自动移除
+                .build();
+
+        Toast.makeText(MainActivity.this, "已推送信息，如果权限，那么将会有下一条提示！", Toast.LENGTH_SHORT).show();
+
+
+
+        mNotificationManager.notify(id++, mNotification);
+    }
+
+
+
+
+
+
+
+    public static String md5(String string) {
+        if (TextUtils.isEmpty(string)) {
+            return "";
+        }
+        MessageDigest md5 = null;
+        try {
+            md5 = MessageDigest.getInstance("MD5");
+            byte[] bytes = md5.digest(string.getBytes());
+            String result = "";
+            for (byte b : bytes) {
+                String temp = Integer.toHexString(b & 0xff);
+                if (temp.length() == 1) {
+                    temp = "0" + temp;
+                }
+                result += temp;
+            }
+            return result;
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -331,82 +383,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //步骤3：提交
             editor.commit();
 
-            initAppHeart();
         }
-    }
-
-    public void initAppHeart(){
-        Log.d(TAG, "run: init");
-        if (newThread!=null){
-            return;
-        }
-        newThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "run: 123123");
-                while (true){
-                    //这里写入子线程需要做的工作
-                    String t = String.valueOf(new Date().getTime());
-                    String sign = md5(t+key);
-
-                    //1.创建OkHttpClient对象
-                    OkHttpClient okHttpClient = new OkHttpClient();
-                    //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
-                    Request request = new Request.Builder().url("http://"+host+"/appHeart?t="+t+"&sign="+sign).method("GET",null).build();
-                    //3.创建一个call对象,参数就是Request请求对象
-                    Call call = okHttpClient.newCall(request);
-                    //4.请求加入调度，重写回调方法
-                    call.enqueue(new Callback() {
-                        //请求失败执行的方法
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Looper.prepare();
-                            Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                        }
-                        //请求成功执行的方法
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            Log.d(TAG, "onResponse heard: "+response.body().string());
-                            Looper.prepare();
-                            //Toast.makeText(MainActivity.this, "心跳正常", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                        }
-                    });
-                    try {
-                        Thread.sleep(30*1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }
-        });
-
-        newThread.start(); //启动线程
-    }
-
-    public static String md5(String string) {
-        if (TextUtils.isEmpty(string)) {
-            return "";
-        }
-        MessageDigest md5 = null;
-        try {
-            md5 = MessageDigest.getInstance("MD5");
-            byte[] bytes = md5.digest(string.getBytes());
-            String result = "";
-            for (byte b : bytes) {
-                String temp = Integer.toHexString(b & 0xff);
-                if (temp.length() == 1) {
-                    temp = "0" + temp;
-                }
-                result += temp;
-            }
-            return result;
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return "";
     }
 
     @Override
@@ -417,7 +394,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 摄像头权限申请
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // 获得授权
-                    startQrCode();
+                    startQrCode(null);
                 } else {
                     // 被禁止授权
                     Toast.makeText(MainActivity.this, "请至权限中心打开本应用的相机访问权限", Toast.LENGTH_LONG).show();
@@ -427,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 // 文件读写权限申请
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // 获得授权
-                    startQrCode();
+                    startQrCode(null);
                 } else {
                     // 被禁止授权
                     Toast.makeText(MainActivity.this, "请至权限中心打开本应用的文件读写权限", Toast.LENGTH_LONG).show();

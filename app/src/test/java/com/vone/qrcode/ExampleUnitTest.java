@@ -1,4 +1,4 @@
-package com.dommy.qrcode;
+package com.vone.qrcode;
 
 import org.junit.Test;
 

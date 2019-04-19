@@ -1,4 +1,4 @@
-package com.dommy.vmq.util;
+package com.vone.vmq.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;

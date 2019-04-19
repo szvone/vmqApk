@@ -1,4 +1,4 @@
-package com.dommy.vmq;
+package com.vone.vmq;
 
 public class CommonRes<V> {
 

@@ -1,4 +1,4 @@
-package com.dommy.vmq.util;
+package com.vone.vmq.util;
 
 /**
  * 常量

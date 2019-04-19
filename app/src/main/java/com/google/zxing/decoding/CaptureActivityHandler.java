@@ -25,7 +25,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.dommy.qrcode.R;
+import com.vone.qrcode.R;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
 import com.google.zxing.activity.CaptureActivity;

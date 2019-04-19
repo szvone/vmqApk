@@ -1,4 +1,4 @@
-package com.dommy.vmq.util;
+package com.vone.vmq.util;
 
 import android.content.ContentResolver;
 import android.content.Context;
