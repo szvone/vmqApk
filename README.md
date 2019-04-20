@@ -1,4 +1,3 @@
-【此为V免签监控端源码】
 
 V免签  —— 个人开发者收款解决方案
 ===============
@@ -15,6 +14,7 @@ V免签 是基于SpringBoot 2.1.1/ThinkPhP5.1 实现的一套免签支付程序�
 > bug反馈请建立issues
 
 > Java版服务端地址：【 https://github.com/szvone/Vmq 】
+
 > PHP 版服务端地址：【 https://github.com/szvone/vmqphp 】
 
 ## 前言
