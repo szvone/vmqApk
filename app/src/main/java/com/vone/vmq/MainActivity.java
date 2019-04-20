@@ -4,6 +4,8 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -187,6 +189,13 @@ public class MainActivity extends AppCompatActivity{
             startActivity(intent);
             return;
         }
+
+//        if(!notificationListenerEnable()){
+//            Toast.makeText(MainActivity.this, "通知使用权权限未授予，请您前往授权!", Toast.LENGTH_SHORT).show();
+//            gotoNotificationAccessSetting(this);
+//            return;
+//        }
+
         if (btnStart.getText().equals("开启服务")){
             btnStart.setText("检测服务状态");
             Toast.makeText(MainActivity.this, "开启成功!", Toast.LENGTH_SHORT).show();
@@ -266,7 +275,36 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
+    private boolean notificationListenerEnable() {
+        boolean enable = false;
+        String packageName = getPackageName();
+        String flat= Settings.Secure.getString(getContentResolver(),"enabled_notification_listeners");
+        if (flat != null) {
+            enable= flat.contains(packageName);
+        }
+        return enable;
+    }
+    private boolean gotoNotificationAccessSetting(Context context) {
+        try {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            return true;
+        } catch(ActivityNotFoundException e) {
+            try {
+                Intent intent = new Intent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ComponentName cn = new ComponentName("com.android.settings","com.android.settings.Settings$NotificationAccessSettingsActivity");
+                intent.setComponent(cn);
+                intent.putExtra(":settings:show_fragment", "NotificationAccessSettings");
+                context.startActivity(intent);
+                return true;
+            } catch(Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+        }
+    }
 
 
 

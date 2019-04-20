@@ -2,9 +2,12 @@ package com.vone.vmq;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -30,6 +33,34 @@ public class NeNotificationService extends AccessibilityService {
     private String key = "";
 
     private Thread newThread = null; //心跳线程
+
+    PowerManager.WakeLock mWakeLock = null;
+
+    //申请设备电源锁
+    @SuppressLint("InvalidWakeLockTag")
+    public void acquireWakeLock(Context context)
+    {
+        if (null == mWakeLock)
+        {
+            PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK|PowerManager.ON_AFTER_RELEASE, "WakeLock");
+            if (null != mWakeLock)
+            {
+                mWakeLock.acquire();
+            }
+        }
+    }
+    //释放设备电源锁
+    public void releaseWakeLock()
+    {
+        if (null != mWakeLock)
+        {
+            mWakeLock.release();
+            mWakeLock = null;
+        }
+    }
+
+
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -160,6 +191,7 @@ public class NeNotificationService extends AccessibilityService {
         if (newThread!=null){
             return;
         }
+        acquireWakeLock(this);
         newThread = new Thread(new Runnable() {
             @Override
             public void run() {
