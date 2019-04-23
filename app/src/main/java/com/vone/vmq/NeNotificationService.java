@@ -64,7 +64,7 @@ public class NeNotificationService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-
+        Log.d(TAG, "onAccessibilityEvent: "+event);
 
         if (event.getEventType() == AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) {
             Log.d(TAG, "onAccessibilityEvent: 监控到新的推送");
@@ -133,11 +133,11 @@ public class NeNotificationService extends AccessibilityService {
                 if (!texts.isEmpty()) {
                     for (CharSequence ctext : texts) {
                         String text = ctext.toString();
-                        if (text.equals("这是一条测试推送信息")){
+                        if (text.equals("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")){
                             Handler handlerThree=new Handler(Looper.getMainLooper());
                             handlerThree.post(new Runnable(){
                                 public void run(){
-                                    Toast.makeText(getApplicationContext() ,"监听服务运行正常，可以监听到推送！",Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext() ,"监听权限正常！",Toast.LENGTH_SHORT).show();
                                 }
                             });
                         }
@@ -154,9 +154,12 @@ public class NeNotificationService extends AccessibilityService {
     protected void onServiceConnected() {
         //设置监听配置
         AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-        info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED;
+        info.eventTypes = AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED |
+                AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED |
+                AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
         info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-        info.notificationTimeout = 100;
+
+        info.notificationTimeout = 10;
         setServiceInfo(info);
 
         //读入保存的配置数据并显示

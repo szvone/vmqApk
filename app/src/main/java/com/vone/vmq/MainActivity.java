@@ -310,6 +310,11 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void checkPush(View v){
+        if (btnStart.getText().equals("检测服务状态")){
+            Toast.makeText(MainActivity.this, "请先开启服务!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Notification mNotification;
         NotificationManager mNotificationManager;
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -317,11 +322,11 @@ public class MainActivity extends AppCompatActivity{
         mNotification = new NotificationCompat.Builder(this)
                 // 设置小图标
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setTicker("这是一条测试推送信息")
+                .setTicker("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
                 // 设置标题
                 .setContentTitle("V免签测试推送")
                 // 设置内容
-                .setContentText("这是一条测试推送信息")
+                .setContentText("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
                 // 设置Notification提示铃声为系统默认铃声
                 .setSound(
                         RingtoneManager.getActualDefaultRingtoneUri(
@@ -331,7 +336,7 @@ public class MainActivity extends AppCompatActivity{
                 // 点击Notification的时候自动移除
                 .build();
 
-        Toast.makeText(MainActivity.this, "已推送信息，如果权限，那么将会有下一条提示！", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(MainActivity.this, "已推送信息，如果权限，那么将会有下一条提示！", Toast.LENGTH_SHORT).show();
 
 
 
