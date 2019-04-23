@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void checkPush(View v){
-        if (btnStart.getText().equals("检测服务状态")){
+        if (!btnStart.getText().equals("检测服务状态")){
             Toast.makeText(MainActivity.this, "请先开启服务!", Toast.LENGTH_SHORT).show();
             return;
         }
