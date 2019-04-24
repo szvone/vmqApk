@@ -419,7 +419,7 @@ public class MainActivity extends AppCompatActivity{
             key = tmp[1];
 
             //步骤2-1：创建一个SharedPreferences.Editor接口对象，lock表示要写入的XML文件名，MODE_WORLD_WRITEABLE写操作
-            SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_WORLD_WRITEABLE).edit();
+            SharedPreferences.Editor editor = getSharedPreferences("vone", MODE_PRIVATE).edit();
             //步骤2-2：将获取过来的值放入文件
             editor.putString("host", host);
             editor.putString("key", key);
