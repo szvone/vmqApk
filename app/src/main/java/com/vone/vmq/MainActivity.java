@@ -1,8 +1,9 @@
 package com.vone.vmq;
 
+
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -18,6 +19,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,9 +29,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.zxing.activity.CaptureActivity;
 import com.vone.qrcode.R;
 import com.vone.vmq.util.Constant;
-import com.google.zxing.activity.CaptureActivity;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -42,7 +44,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
     Button btnQrCode;
     Button btnStart;
     Button btnInput;
@@ -75,7 +77,7 @@ public class MainActivity extends AppCompatActivity{
 
 
         //检测服务是否在线
-        if(isAccessibilitySettingsOn(this)){
+        if (isAccessibilitySettingsOn(this)) {
             btnStart.setText("检测服务状态");
         }
 
@@ -85,15 +87,15 @@ public class MainActivity extends AppCompatActivity{
         host = read.getString("host", "");
         key = read.getString("key", "");
 
-        if (host!=null && key!=null && host!="" && key!=""){
-            txthost.setText(" 通知地址："+host);
-            txtkey.setText(" 通讯密钥："+key);
+        if (host != null && key != null && host != "" && key != "") {
+            txthost.setText(" 通知地址：" + host);
+            txtkey.setText(" 通讯密钥：" + key);
             isOk = true;
         }
 
 
-
     }
+
     //扫码配置
     public void startQrCode(View v) {
         // 申请相机权限
@@ -112,8 +114,9 @@ public class MainActivity extends AppCompatActivity{
         Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
         startActivityForResult(intent, Constant.REQ_QR_CODE);
     }
+
     //手动配置
-    public void doInput(View v){
+    public void doInput(View v) {
         final EditText inputServer = new EditText(this);
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("请输入配置数据").setView(inputServer)
@@ -124,18 +127,18 @@ public class MainActivity extends AppCompatActivity{
                 String scanResult = inputServer.getText().toString();
 
                 String[] tmp = scanResult.split("/");
-                if (tmp.length!=2){
+                if (tmp.length != 2) {
                     Toast.makeText(MainActivity.this, "数据错误，请您输入网站上显示的配置数据!", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 String t = String.valueOf(new Date().getTime());
-                String sign = md5(t+tmp[1]);
+                String sign = md5(t + tmp[1]);
 
                 //1.创建OkHttpClient对象
                 OkHttpClient okHttpClient = new OkHttpClient();
                 //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
-                Request request = new Request.Builder().url("http://"+tmp[0]+"/appHeart?t="+t+"&sign="+sign).method("GET",null).build();
+                Request request = new Request.Builder().url("http://" + tmp[0] + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
                 //3.创建一个call对象,参数就是Request请求对象
                 Call call = okHttpClient.newCall(request);
                 //4.请求加入调度，重写回调方法
@@ -145,22 +148,23 @@ public class MainActivity extends AppCompatActivity{
                     public void onFailure(Call call, IOException e) {
 
                     }
+
                     //请求成功执行的方法
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        Log.d(TAG, "onResponse: "+response.body().string());
+                        Log.d(TAG, "onResponse: " + response.body().string());
                         isOk = true;
 
                     }
                 });
-                if (tmp[0].indexOf("localhost")>=0){
+                if (tmp[0].indexOf("localhost") >= 0) {
                     Toast.makeText(MainActivity.this, "配置信息错误，本机调试请访问 本机局域网IP:8080(如192.168.1.101:8080) 获取配置信息进行配置!", Toast.LENGTH_LONG).show();
 
                     return;
                 }
                 //将扫描出的信息显示出来
-                txthost.setText(" 通知地址："+tmp[0]);
-                txtkey.setText(" 通讯密钥："+tmp[1]);
+                txthost.setText(" 通知地址：" + tmp[0]);
+                txtkey.setText(" 通讯密钥：" + tmp[1]);
                 host = tmp[0];
                 key = tmp[1];
 
@@ -177,9 +181,10 @@ public class MainActivity extends AppCompatActivity{
         builder.show();
 
     }
+
     //启动服务
     public void doStart(View view) {
-        if (isOk==false){
+        if (isOk == false) {
             Toast.makeText(MainActivity.this, "请您先配置!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -196,18 +201,18 @@ public class MainActivity extends AppCompatActivity{
 //            return;
 //        }
 
-        if (btnStart.getText().equals("开启服务")){
+        if (btnStart.getText().equals("开启服务")) {
             btnStart.setText("检测服务状态");
             Toast.makeText(MainActivity.this, "开启成功!", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
 
             String t = String.valueOf(new Date().getTime());
-            String sign = md5(t+key);
+            String sign = md5(t + key);
 
             //1.创建OkHttpClient对象
             OkHttpClient okHttpClient = new OkHttpClient();
             //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
-            Request request = new Request.Builder().url("http://"+host+"/appHeart?t="+t+"&sign="+sign).method("GET",null).build();
+            Request request = new Request.Builder().url("http://" + host + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
             //3.创建一个call对象,参数就是Request请求对象
             Call call = okHttpClient.newCall(request);
             //4.请求加入调度，重写回调方法
@@ -219,21 +224,20 @@ public class MainActivity extends AppCompatActivity{
                     Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
                     Looper.loop();
                 }
+
                 //请求成功执行的方法
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     //Log.d(TAG, "onResponse heard: "+response.body().string());
                     Looper.prepare();
-                    Toast.makeText(MainActivity.this, "程序运行正常，心跳返回："+response.body().string(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "程序运行正常，心跳返回：" + response.body().string(), Toast.LENGTH_LONG).show();
                     Looper.loop();
                 }
             });
 
 
-
         }
     }
-
 
 
     private boolean isAccessibilitySettingsOn(Context mContext) {
@@ -278,28 +282,29 @@ public class MainActivity extends AppCompatActivity{
     private boolean notificationListenerEnable() {
         boolean enable = false;
         String packageName = getPackageName();
-        String flat= Settings.Secure.getString(getContentResolver(),"enabled_notification_listeners");
+        String flat = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
         if (flat != null) {
-            enable= flat.contains(packageName);
+            enable = flat.contains(packageName);
         }
         return enable;
     }
+
     private boolean gotoNotificationAccessSetting(Context context) {
         try {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
             return true;
-        } catch(ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException e) {
             try {
                 Intent intent = new Intent();
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                ComponentName cn = new ComponentName("com.android.settings","com.android.settings.Settings$NotificationAccessSettingsActivity");
+                ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.Settings$NotificationAccessSettingsActivity");
                 intent.setComponent(cn);
                 intent.putExtra(":settings:show_fragment", "NotificationAccessSettings");
                 context.startActivity(intent);
                 return true;
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
             return false;
@@ -307,10 +312,8 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
-
-    public void checkPush(View v){
-        if (!btnStart.getText().equals("检测服务状态")){
+    public void checkPush(View v) {
+        if (!btnStart.getText().equals("检测服务状态")) {
             Toast.makeText(MainActivity.this, "请先开启服务!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -319,12 +322,19 @@ public class MainActivity extends AppCompatActivity{
         NotificationManager mNotificationManager;
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        mNotification = new NotificationCompat.Builder(this)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("default", "default", NotificationManager.IMPORTANCE_HIGH);
+            mNotificationManager.createNotificationChannel(channel);
+        }
+
+
+        mNotification = new NotificationCompat.Builder(this,"default")
                 // 设置小图标
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setTicker("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
                 // 设置标题
                 .setContentTitle("V免签测试推送")
+                .setWhen(System.currentTimeMillis())
                 // 设置内容
                 .setContentText("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
                 // 设置Notification提示铃声为系统默认铃声
@@ -338,15 +348,8 @@ public class MainActivity extends AppCompatActivity{
 
         //Toast.makeText(MainActivity.this, "已推送信息，如果权限，那么将会有下一条提示！", Toast.LENGTH_SHORT).show();
 
-
-
         mNotificationManager.notify(id++, mNotification);
     }
-
-
-
-
-
 
 
     public static String md5(String string) {
@@ -373,7 +376,6 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -383,18 +385,18 @@ public class MainActivity extends AppCompatActivity{
             String scanResult = bundle.getString(Constant.INTENT_EXTRA_KEY_QR_SCAN);
 
             String[] tmp = scanResult.split("/");
-            if (tmp.length!=2){
+            if (tmp.length != 2) {
                 Toast.makeText(MainActivity.this, "二维码错误，请您扫描网站上显示的二维码!", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             String t = String.valueOf(new Date().getTime());
-            String sign = md5(t+tmp[1]);
+            String sign = md5(t + tmp[1]);
 
             //1.创建OkHttpClient对象
             OkHttpClient okHttpClient = new OkHttpClient();
             //2.创建Request对象，设置一个url地址（百度地址）,设置请求方式。
-            Request request = new Request.Builder().url("http://"+tmp[0]+"/appHeart?t="+t+"&sign="+sign).method("GET",null).build();
+            Request request = new Request.Builder().url("http://" + tmp[0] + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
             //3.创建一个call对象,参数就是Request请求对象
             Call call = okHttpClient.newCall(request);
             //4.请求加入调度，重写回调方法
@@ -404,17 +406,18 @@ public class MainActivity extends AppCompatActivity{
                 public void onFailure(Call call, IOException e) {
 
                 }
+
                 //请求成功执行的方法
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.d(TAG, "onResponse: "+response.body().string());
+                    Log.d(TAG, "onResponse: " + response.body().string());
                     isOk = true;
 
                 }
             });
             //将扫描出的信息显示出来
-            txthost.setText(" 通知地址："+tmp[0]);
-            txtkey.setText(" 通讯密钥："+tmp[1]);
+            txthost.setText(" 通知地址：" + tmp[0]);
+            txtkey.setText(" 通讯密钥：" + tmp[1]);
             host = tmp[0];
             key = tmp[1];
 
@@ -455,7 +458,6 @@ public class MainActivity extends AppCompatActivity{
                 break;
         }
     }
-
 
 
 }
