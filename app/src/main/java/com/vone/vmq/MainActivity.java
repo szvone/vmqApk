@@ -18,6 +18,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -78,6 +80,16 @@ public class MainActivity extends AppCompatActivity{
         if(isAccessibilitySettingsOn(this)){
             btnStart.setText("检测服务状态");
         }
+
+        if (!isNotificationListenersEnabled()) {
+            gotoNotificationAccessSetting();
+        }
+
+//        if (!isNotificationListenerServiceEnabled(this)){
+//
+//        }
+        toggleNotificationListenerService(this);
+
 
 
         //读入保存的配置数据并显示
@@ -310,10 +322,12 @@ public class MainActivity extends AppCompatActivity{
 
 
     public void checkPush(View v){
-        if (!btnStart.getText().equals("检测服务状态")){
-            Toast.makeText(MainActivity.this, "请先开启服务!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (!btnStart.getText().equals("检测服务状态")){
+//            Toast.makeText(MainActivity.this, "请先开启服务!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
+
 
         Notification mNotification;
         NotificationManager mNotificationManager;
@@ -344,7 +358,24 @@ public class MainActivity extends AppCompatActivity{
     }
 
 
+    private static boolean isNotificationListenerServiceEnabled(Context context) {
+        Set<String> packageNames = NotificationManagerCompat.getEnabledListenerPackages(context);
+        if (packageNames.contains(context.getPackageName())) {
+            return true;
+        }
+        return false;
+    }
 
+    private void toggleNotificationListenerService(Context context) {
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(new ComponentName(context, NeNotificationService2.class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+        pm.setComponentEnabledSetting(new ComponentName(context, NeNotificationService2.class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+
+        Toast.makeText(MainActivity.this, "监听服务启动中...", Toast.LENGTH_SHORT).show();
+    }
 
 
 
@@ -372,6 +403,46 @@ public class MainActivity extends AppCompatActivity{
         return "";
     }
 
+    public boolean isNotificationListenersEnabled() {
+        String pkgName = getPackageName();
+        final String flat = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+        if (!TextUtils.isEmpty(flat)) {
+            final String[] names = flat.split(":");
+            for (int i = 0; i < names.length; i++) {
+                final ComponentName cn = ComponentName.unflattenFromString(names[i]);
+                if (cn != null) {
+                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    protected boolean gotoNotificationAccessSetting() {
+        try {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+
+        } catch (ActivityNotFoundException e) {//普通情况下找不到的时候需要再特殊处理找一次
+            try {
+                Intent intent = new Intent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.Settings$NotificationAccessSettingsActivity");
+                intent.setComponent(cn);
+                intent.putExtra(":settings:show_fragment", "NotificationAccessSettings");
+                startActivity(intent);
+                return true;
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            Toast.makeText(this, "对不起，您的手机暂不支持", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
     @Override

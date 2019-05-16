@@ -74,7 +74,7 @@ public class NeNotificationService extends AccessibilityService {
             Log.d(TAG,"onAccessibilityEvent: 应用包名:" + event.getPackageName());
             Log.d(TAG,"onAccessibilityEvent: 推送内容:" + event.getText());
 
-
+            /*
 
             List<CharSequence> texts = event.getText();
 
@@ -144,6 +144,7 @@ public class NeNotificationService extends AccessibilityService {
                     }
                 }
             }
+            */
 
         }
 
