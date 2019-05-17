@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
-        android:name="com.vone.vmq.MyData"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -27,17 +26,6 @@
 
         <activity
             android:name="com.google.zxing.activity.CaptureActivity"/>
-
-        <service android:name="com.vone.vmq.NeNotificationService"
-            android:enabled="true"
-            android:exported="true"
-            android:label="V免签监控服务"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:process=":BackgroundService">
-            <intent-filter>
-                <action android:name="android.accessibilityservice.AccessibilityService"/>
-            </intent-filter>
-        </service>
 
 
         <service
