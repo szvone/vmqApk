@@ -100,6 +100,12 @@ public class NeNotificationService2  extends NotificationListenerService {
                                     Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信店员 到账 "+money);
 
                                     appPush(1,Double.valueOf(money));
+                                }else if (text.indexOf("微信收款商业版")!=-1){
+
+                                    String money = getSubString(text,"商业版: 收款","元");
+                                    Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信商业 到账 "+money);
+
+                                    appPush(1,Double.valueOf(money));
                                 }
                             }
                         }
