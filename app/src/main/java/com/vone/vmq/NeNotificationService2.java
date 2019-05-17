@@ -85,9 +85,13 @@ public class NeNotificationService2  extends NotificationListenerService {
                         //微信支付: 微信支付收款0.01元（朋友到店）
                         String[] tmp = text.split(":");
                         if (tmp.length==2){
-                            if (tmp[0].equals("微信支付") || tmp[0].equals("微信收款助手") ){
+                            if (tmp[0].equals("微信支付") || tmp[0].equals("微信收款助手") || tmp[0].equals("微信收款商业版")){
                                 if (text.indexOf("微信支付收款")!=-1){
                                     String money = getSubString(text,"微信支付收款","元");
+                                    if (money.indexOf("支付")!=-1){
+                                        money = getSubString(money+"元","微信支付收款","元");
+                                    }
+
                                     Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信 到账 "+money);
                                     appPush(1,Double.valueOf(money));
                                 }else if (text.indexOf("店员消息")!=-1){

@@ -3,6 +3,7 @@ package com.vone.vmq;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -11,13 +12,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -327,28 +329,49 @@ public class MainActivity extends AppCompatActivity{
 //            return;
 //        }
 
-
-
         Notification mNotification;
         NotificationManager mNotificationManager;
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        mNotification = new NotificationCompat.Builder(this)
-                // 设置小图标
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setTicker("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
-                // 设置标题
-                .setContentTitle("V免签测试推送")
-                // 设置内容
-                .setContentText("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
-                // 设置Notification提示铃声为系统默认铃声
-                .setSound(
-                        RingtoneManager.getActualDefaultRingtoneUri(
-                                getBaseContext(),
-                                RingtoneManager.TYPE_NOTIFICATION))
 
-                // 点击Notification的时候自动移除
-                .build();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            //ChannelId为"1",ChannelName为"Channel1"
+            NotificationChannel channel = new NotificationChannel("1",
+                    "Channel1", NotificationManager.IMPORTANCE_DEFAULT);
+            channel.enableLights(true); //是否在桌面icon右上角展示小红点
+            channel.setLightColor(Color.GREEN); //小红点颜色
+            channel.setShowBadge(true); //是否在久按桌面图标时显示此渠道的通知
+            mNotificationManager.createNotificationChannel(channel);
+
+            Notification.Builder builder = new Notification.Builder(this,"1"); //与channelId对应
+
+            mNotification = builder
+                    // 设置小图标
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setTicker("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
+                    // 设置标题
+                    .setContentTitle("V免签测试推送")
+                    // 设置内容
+                    .setContentText("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
+                    .build();
+        }else{
+            mNotification = new Notification.Builder(MainActivity.this)
+                    // 设置小图标
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setTicker("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
+                    // 设置标题
+                    .setContentTitle("V免签测试推送")
+                    // 设置内容
+                    .setContentText("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")
+
+                    // 设置Notification提示铃声为系统默认铃声
+                    .setSound(
+                            RingtoneManager.getActualDefaultRingtoneUri(
+                                    getBaseContext(),
+                                    RingtoneManager.TYPE_NOTIFICATION))
+
+                    .build();
+        }
 
         //Toast.makeText(MainActivity.this, "已推送信息，如果权限，那么将会有下一条提示！", Toast.LENGTH_SHORT).show();
 
