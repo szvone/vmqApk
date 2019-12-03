@@ -249,7 +249,7 @@ public class NeNotificationService2  extends NotificationListenerService {
         boolean result = m.find();
         String find_result = null;
         if (result) {
-            find_result = m.group(1);
+            find_result = m.group(m.groupCount());
         }
         return find_result;
     }
