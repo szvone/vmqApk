@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity{
         }
 
 
-        Toast.makeText(MainActivity.this, "v免签开源免费免签系统 v1.8", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, "v免签开源免费免签系统 v1.8.1", Toast.LENGTH_SHORT).show();
 
 
     }

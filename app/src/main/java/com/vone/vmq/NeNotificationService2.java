@@ -18,7 +18,9 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -145,6 +147,13 @@ public class NeNotificationService2  extends NotificationListenerService {
                             if (money!=null){
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 支付宝 到账 " + money);
                                 appPush(2, Double.valueOf(money));
+                            }else {
+                                Handler handlerThree=new Handler(Looper.getMainLooper());
+                                handlerThree.post(new Runnable(){
+                                    public void run(){
+                                        Toast.makeText(getApplicationContext() ,"监听到支付宝消息但未匹配到金额！",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         }
 
@@ -158,6 +167,13 @@ public class NeNotificationService2  extends NotificationListenerService {
                             if (money!=null){
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信到账 "+ money);
                                 appPush(1,Double.valueOf(money));
+                            }else{
+                                Handler handlerThree=new Handler(Looper.getMainLooper());
+                                handlerThree.post(new Runnable(){
+                                    public void run(){
+                                        Toast.makeText(getApplicationContext() ,"监听到微信消息但未匹配到金额！",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
 
                         }
@@ -169,7 +185,7 @@ public class NeNotificationService2  extends NotificationListenerService {
                         Handler handlerThree=new Handler(Looper.getMainLooper());
                         handlerThree.post(new Runnable(){
                             public void run(){
-                                Toast.makeText(getApplicationContext() ,"监听正常！",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext() ,"监听正常，如无法正常回调请联系作者反馈！",Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -238,20 +254,17 @@ public class NeNotificationService2  extends NotificationListenerService {
 
     public static String getMoney(String content){
 
-        int index = content.indexOf("]");
-        if (index!=-1){
-            content = content.substring(index+1);
+        List<String> ss = new ArrayList<String>();
+        for(String sss:content.replaceAll("[^0-9.]", ",").split(",")){
+            if (sss.length()>0)
+                ss.add(sss);
+        }
+        if (ss.size()<1){
+            return null;
+        }else {
+            return ss.get(ss.size()-1);
         }
 
-
-        Pattern p = Pattern.compile("([0-9]\\d*\\.?\\d*)|(0\\.\\d*[0-9])");
-        Matcher m = p.matcher(content);
-        boolean result = m.find();
-        String find_result = null;
-        if (result) {
-            find_result = m.group(m.groupCount());
-        }
-        return find_result;
     }
     public static String md5(String string) {
         if (TextUtils.isEmpty(string)) {
@@ -275,6 +288,5 @@ public class NeNotificationService2  extends NotificationListenerService {
         }
         return "";
     }
-
 
 }
