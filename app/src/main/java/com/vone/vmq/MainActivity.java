@@ -350,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
             editor.putString("host", host);
             editor.putString("key", key);
             editor.commit();
-
         }
     }
 
