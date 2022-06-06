@@ -53,9 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static String host;
     private static String key;
-
     int id = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +71,9 @@ public class MainActivity extends AppCompatActivity {
             Utils.gotoBatterySetting(this);
         }
         //重启监听服务
-        toggleNotificationListenerService(this);
+        if (!NeNotificationService2.isRunning) {
+            toggleNotificationListenerService(this);
+        }
         //读入保存的配置数据并显示
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         host = read.getString("host", "");
