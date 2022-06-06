@@ -21,8 +21,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -36,7 +34,7 @@ public class NeNotificationService2 extends NotificationListenerService {
     private String key = "";
     private Thread newThread = null;
     private PowerManager.WakeLock mWakeLock = null;
-
+    public static boolean isRunning;
 
     //申请设备电源锁
     @SuppressLint("InvalidWakeLockTag")
@@ -64,13 +62,11 @@ public class NeNotificationService2 extends NotificationListenerService {
         if (newThread != null) {
             return;
         }
-        acquireWakeLock(this);
         newThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "心跳线程启动！");
-                while (true) {
-
+                while (isRunning) {
                     SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
                     host = read.getString("host", "");
                     key = read.getString("key", "");
@@ -107,10 +103,8 @@ public class NeNotificationService2 extends NotificationListenerService {
                         e.printStackTrace();
                     }
                 }
-
             }
         });
-
         newThread.start(); //启动线程
     }
 
@@ -122,7 +116,6 @@ public class NeNotificationService2 extends NotificationListenerService {
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         host = read.getString("host", "");
         key = read.getString("key", "");
-
 
         Notification notification = sbn.getNotification();
         String pkg = sbn.getPackageName();
@@ -136,8 +129,6 @@ public class NeNotificationService2 extends NotificationListenerService {
                 Log.d(TAG, "标题:" + title);
                 Log.d(TAG, "内容:" + content);
                 Log.d(TAG, "**********************");
-
-
                 if (pkg.equals("com.eg.android.AlipayGphone")) {
                     if (content != null && !content.equals("")) {
                         if (content.contains("通过扫码向你付款") || content.contains("成功收款")
@@ -162,7 +153,6 @@ public class NeNotificationService2 extends NotificationListenerService {
                     }
 
                 } else if (pkg.equals("com.tencent.mm")) {
-
                     if (content != null && !content.equals("")) {
                         if (title.equals("微信支付") || title.equals("微信收款助手") || title.equals("微信收款商业版")) {
                             String money = getMoney(content);
@@ -182,7 +172,6 @@ public class NeNotificationService2 extends NotificationListenerService {
                     }
 
                 } else if (pkg.equals("com.vone.qrcode")) {
-
                     if (content.equals("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")) {
                         Handler handlerThree = new Handler(Looper.getMainLooper());
                         handlerThree.post(new Runnable() {
@@ -192,11 +181,8 @@ public class NeNotificationService2 extends NotificationListenerService {
                         });
                     }
                 }
-
-
             }
         }
-
     }
 
     //当移除一条消息的时候回调，sbn是被移除的消息
@@ -208,6 +194,7 @@ public class NeNotificationService2 extends NotificationListenerService {
     //当连接成功时调用，一般在开启监听后会回调一次该方法
     @Override
     public void onListenerConnected() {
+        isRunning = true;
         //开启心跳线程
         initAppHeart();
 
@@ -217,12 +204,23 @@ public class NeNotificationService2 extends NotificationListenerService {
                 Toast.makeText(getApplicationContext(), "监听服务开启成功！", Toast.LENGTH_SHORT).show();
             }
         });
-
-
     }
 
+    @Override
+    public void onListenerDisconnected() {
+        super.onListenerDisconnected();
+        isRunning = false;
+        if (newThread != null) {
+            newThread.interrupt();
+        }
+        newThread = null;
+    }
 
+    /**
+     * 通知服务器收款到账
+     */
     public void appPush(int type, double price) {
+        acquireWakeLock(this);
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         host = read.getString("host", "");
         key = read.getString("key", "");
@@ -241,20 +239,18 @@ public class NeNotificationService2 extends NotificationListenerService {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onResponse  push: 请求失败");
-
+                releaseWakeLock();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
                 Log.d(TAG, "onResponse  push: " + response.body().string());
-
+                releaseWakeLock();
             }
         });
     }
 
     public static String getMoney(String content) {
-
         List<String> ss = new ArrayList<String>();
         for (String sss : content.replaceAll("[^0-9.]", ",").split(",")) {
             if (sss.length() > 0)

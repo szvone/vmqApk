@@ -7,7 +7,13 @@
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 摄像头权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-feature android:name="android.hardware.camera.autofocus" /> <!-- 自动聚焦权限 -->
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!--  新增权限  -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -16,17 +22,19 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name="com.vone.vmq.MainActivity">
+        <activity
+            android:name="com.vone.vmq.MainActivity"
+            android:excludeFromRecents="true">
             <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.google.zxing.activity.CaptureActivity"/>
-
+            android:name="com.google.zxing.activity.CaptureActivity"
+            android:excludeFromRecents="true" />
 
         <service
             android:name="com.vone.vmq.NeNotificationService2"
@@ -37,7 +45,21 @@
             </intent-filter>
         </service>
 
+        <receiver
+            android:name="com.vone.vmq.StartReceive"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.zhou.example.messagelisenterservice.START_SERVICE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SECRET_CODE" />
 
+                <data
+                    android:host="66469"
+                    android:scheme="android_secret_code" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

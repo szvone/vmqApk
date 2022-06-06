@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">V免签监控端</string>
+
+    <string name="click_add_to_battery_white_list">点击加入电池优化白名单</string>
 </resources>
