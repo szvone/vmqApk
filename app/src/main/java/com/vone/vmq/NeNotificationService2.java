@@ -100,10 +100,13 @@ public class NeNotificationService2 extends NotificationListenerService {
                     call.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            final String error = e.getMessage();
+                            // final String error = e.getMessage();
                             handler.post(new Runnable() {
                                 public void run() {
-                                    Toast.makeText(getApplicationContext(), "心跳状态错误，请检查配置是否正确!" + error, Toast.LENGTH_LONG).show();
+                                    // Toast.makeText(getApplicationContext(), "心跳状态错误，请检查配置是否正确!" + error, Toast.LENGTH_LONG).show();
+                                    enterForeground(NeNotificationService2.this,
+                                            NeNotificationService2.this.getString(R.string.app_name),
+                                            NeNotificationService2.this.getString(R.string.app_is_heart), "");
                                 }
                             });
                         }
