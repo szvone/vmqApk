@@ -101,8 +101,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             final String error = e.getMessage();
-                            Handler handlerThree = new Handler(Looper.getMainLooper());
-                            handlerThree.post(new Runnable() {
+                            handler.post(new Runnable() {
                                 public void run() {
                                     Toast.makeText(getApplicationContext(), "心跳状态错误，请检查配置是否正确!" + error, Toast.LENGTH_LONG).show();
                                 }
@@ -163,8 +162,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 支付宝 到账 " + money);
                                 appPush(2, Double.parseDouble(money));
                             } else {
-                                Handler handlerThree = new Handler(Looper.getMainLooper());
-                                handlerThree.post(new Runnable() {
+                                handler.post(new Runnable() {
                                     public void run() {
                                         Toast.makeText(getApplicationContext(), "监听到支付宝消息但未匹配到金额！", Toast.LENGTH_SHORT).show();
                                     }
@@ -184,8 +182,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                                     Log.d(TAG, "app push 错误！！！");
                                 }
                             } else {
-                                Handler handlerThree = new Handler(Looper.getMainLooper());
-                                handlerThree.post(new Runnable() {
+                                handler.post(new Runnable() {
                                     public void run() {
                                         Toast.makeText(getApplicationContext(), "监听到微信消息但未匹配到金额！", Toast.LENGTH_SHORT).show();
                                     }
@@ -197,8 +194,7 @@ public class NeNotificationService2 extends NotificationListenerService {
 
                 } else if ("com.vone.qrcode".equals(pkg)) {
                     if (content.equals("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")) {
-                        Handler handlerThree = new Handler(Looper.getMainLooper());
-                        handlerThree.post(new Runnable() {
+                        handler.post(new Runnable() {
                             public void run() {
                                 Toast.makeText(getApplicationContext(), "监听正常，如无法正常回调请联系作者反馈！", Toast.LENGTH_SHORT).show();
                             }
@@ -222,8 +218,7 @@ public class NeNotificationService2 extends NotificationListenerService {
         //开启心跳线程
         initAppHeart();
 
-        Handler handlerThree = new Handler(Looper.getMainLooper());
-        handlerThree.post(new Runnable() {
+        handler.post(new Runnable() {
             public void run() {
                 Toast.makeText(getApplicationContext(), "监听服务开启成功！", Toast.LENGTH_SHORT).show();
             }

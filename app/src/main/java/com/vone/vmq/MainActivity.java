@@ -15,6 +15,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -43,7 +44,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private TextView txthost;
     private TextView txtkey;
 
@@ -180,20 +181,27 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Looper.prepare();
-                Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
-                Looper.loop();
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(MainActivity.this, "心跳状态错误，请检查配置是否正确!", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Looper.prepare();
-                try {
-                    Toast.makeText(MainActivity.this, "心跳返回：" + response.body().string(), Toast.LENGTH_LONG).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                Looper.loop();
+            public void onResponse(Call call, final Response response) throws IOException {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // 为什么每一个response都 try catch了，因为response.body有可能为空
+                            Toast.makeText(MainActivity.this, "心跳返回：" + response.body().string(), Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         });
     }
