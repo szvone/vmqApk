@@ -3,7 +3,9 @@ package com.vone.vmq;
 import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +17,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.vone.qrcode.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,12 +31,11 @@ import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class NeNotificationService2 extends NotificationListenerService {
-    private String TAG = "NeNotificationService2";
+    private static String TAG = "NeNotificationService2";
     private String host = "";
     private String key = "";
     private Thread newThread = null;
@@ -41,9 +47,11 @@ public class NeNotificationService2 extends NotificationListenerService {
     public void acquireWakeLock(Context context) {
         if (null == mWakeLock) {
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "WakeLock");
+            if (pm != null) {
+                mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "WakeLock");
+            }
             if (null != mWakeLock) {
-                mWakeLock.acquire();
+                mWakeLock.acquire(5000);
             }
         }
     }
@@ -75,10 +83,8 @@ public class NeNotificationService2 extends NotificationListenerService {
                     String t = String.valueOf(new Date().getTime());
                     String sign = md5(t + key);
 
-
-                    OkHttpClient okHttpClient = new OkHttpClient();
                     Request request = new Request.Builder().url("http://" + host + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
-                    Call call = okHttpClient.newCall(request);
+                    Call call = Utils.getOkHttpClient().newCall(request);
                     call.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
@@ -94,7 +100,11 @@ public class NeNotificationService2 extends NotificationListenerService {
                         //请求成功执行的方法
                         @Override
                         public void onResponse(Call call, Response response) throws IOException {
-                            Log.d(TAG, "onResponse heard: " + response.body().string());
+                            try {
+                                Log.d(TAG, "onResponse heard: " + response.body().string());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
                     });
                     try {
@@ -129,7 +139,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                 Log.d(TAG, "标题:" + title);
                 Log.d(TAG, "内容:" + content);
                 Log.d(TAG, "**********************");
-                if (pkg.equals("com.eg.android.AlipayGphone")) {
+                if ("com.eg.android.AlipayGphone".equals(pkg)) {
                     if (content != null && !content.equals("")) {
                         if (content.contains("通过扫码向你付款") || content.contains("成功收款")
                                 || title.contains("通过扫码向你付款") || title.contains("成功收款")) {
@@ -149,16 +159,14 @@ public class NeNotificationService2 extends NotificationListenerService {
                                 });
                             }
                         }
-
                     }
-
-                } else if (pkg.equals("com.tencent.mm")) {
+                } else if ("com.tencent.mm".equals(pkg)) {
                     if (content != null && !content.equals("")) {
                         if (title.equals("微信支付") || title.equals("微信收款助手") || title.equals("微信收款商业版")) {
                             String money = getMoney(content);
                             if (money != null) {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信到账 " + money);
-                                appPush(1, Double.valueOf(money));
+                                appPush(1, Double.parseDouble(money));
                             } else {
                                 Handler handlerThree = new Handler(Looper.getMainLooper());
                                 handlerThree.post(new Runnable() {
@@ -171,7 +179,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                         }
                     }
 
-                } else if (pkg.equals("com.vone.qrcode")) {
+                } else if ("com.vone.qrcode".equals(pkg)) {
                     if (content.equals("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")) {
                         Handler handlerThree = new Handler(Looper.getMainLooper());
                         handlerThree.post(new Runnable() {
@@ -229,29 +237,82 @@ public class NeNotificationService2 extends NotificationListenerService {
 
         String t = String.valueOf(new Date().getTime());
         String sign = md5(type + "" + price + t + key);
-        String url = "http://" + host + "/appPush?t=" + t + "&type=" + type + "&price=" + price + "&sign=" + sign;
+        final String url = "http://" + host + "/appPush?t=" + t + "&type=" + type + "&price=" + price + "&sign=" + sign;
         Log.d(TAG, "onResponse  push: 开始:" + url);
 
-        OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url(url).method("GET", null).build();
-        Call call = okHttpClient.newCall(request);
+        Call call = Utils.getOkHttpClient().newCall(request);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onResponse  push: 请求失败");
+                foregroundPost(url);
                 releaseWakeLock();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "onResponse  push: " + response.body().string());
+                try {
+                    Log.d(TAG, "onResponse  push: " + response.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                // 如果返回状态不是成功的。同样要回调
+                if (!response.isSuccessful()) {
+                    foregroundPost(url);
+                }
                 releaseWakeLock();
             }
         });
     }
 
+    /**
+     * 当通知失败的时候，前台强制通知
+     */
+    private void foregroundPost(String url) {
+        Context context = NeNotificationService2.this;
+        if (isRunning) {
+            JSONObject extraJson = new JSONObject();
+            try {
+                extraJson.put("url", url);
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+            }
+            enterForeground(context,
+                    context.getString(R.string.app_name),
+                    context.getString(R.string.app_is_post), extraJson.toString());
+        }
+    }
+
+    /**
+     * 如果出现无法通知的情况，进入前台，然后主动打开通知
+     */
+    public static void enterForeground(Context context, String title, String text, String extra) {
+        if (context == null) return;
+        Log.i(TAG, "enter fore ground");
+        Intent intent = new Intent(context, ForegroundServer.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(ForegroundServer.GET_NOTIFY_TITLE, title == null ? "" : title);
+        intent.putExtra(ForegroundServer.GET_NOTIFY_TEXT, text == null ? "" : text);
+        intent.putExtra(ForegroundServer.GET_NOTIFY_EXTRA, extra == null ? "" : extra);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent);
+        } else {
+            context.startService(intent);
+        }
+    }
+
+    public static void exitForeground(Context context) {
+        if (context == null) return;
+        Log.i(TAG, "exitForeground");
+
+        Intent intent1 = new Intent();
+        intent1.setAction(Constant.FINISH_FOREGROUND_SERVICE);
+        context.sendBroadcast(intent1);
+    }
+
     public static String getMoney(String content) {
-        List<String> ss = new ArrayList<String>();
+        List<String> ss = new ArrayList<>();
         for (String sss : content.replaceAll("[^0-9.]", ",").split(",")) {
             if (sss.length() > 0)
                 ss.add(sss);
@@ -272,15 +333,15 @@ public class NeNotificationService2 extends NotificationListenerService {
         try {
             md5 = MessageDigest.getInstance("MD5");
             byte[] bytes = md5.digest(string.getBytes());
-            String result = "";
+            StringBuilder result = new StringBuilder();
             for (byte b : bytes) {
                 String temp = Integer.toHexString(b & 0xff);
                 if (temp.length() == 1) {
                     temp = "0" + temp;
                 }
-                result += temp;
+                result.append(temp);
             }
-            return result;
+            return result.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

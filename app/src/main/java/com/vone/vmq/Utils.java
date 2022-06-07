@@ -26,6 +26,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
 
 class Utils {
     public final static String GET_MESSAGE_KEY = "get_message_key";
@@ -35,6 +38,13 @@ class Utils {
     private final static String hourType = "HH:mm:ss";
     private static int notifyDay = -1;
 
+    public static OkHttpClient getOkHttpClient(){
+        return  new OkHttpClient.Builder()
+                .connectTimeout(5, TimeUnit.SECONDS)
+                .readTimeout(5, TimeUnit.SECONDS)
+                .writeTimeout(5, TimeUnit.SECONDS)
+                .build();
+    }
     static void putStr(Context context, String value) {
         if (context == null) {
             return;

@@ -38,7 +38,6 @@ import java.util.Date;
 
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -126,9 +125,8 @@ public class MainActivity extends AppCompatActivity {
                 String t = String.valueOf(new Date().getTime());
                 String sign = md5(t + tmp[1]);
 
-                OkHttpClient okHttpClient = new OkHttpClient();
                 Request request = new Request.Builder().url("http://" + tmp[0] + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
-                Call call = okHttpClient.newCall(request);
+                Call call = Utils.getOkHttpClient().newCall(request);
                 call.enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -137,9 +135,12 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
-                        Log.d(TAG, "onResponse: " + response.body().string());
+                        try {
+                            Log.d(TAG, "onResponse: " + response.body().string());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         isOk = true;
-
                     }
                 });
                 if (tmp[0].indexOf("localhost") >= 0) {
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
     //检测心跳
     public void doStart(View view) {
-        if (isOk == false) {
+        if (!isOk) {
             Toast.makeText(MainActivity.this, "请您先配置!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -174,9 +175,8 @@ public class MainActivity extends AppCompatActivity {
         String t = String.valueOf(new Date().getTime());
         String sign = md5(t + key);
 
-        OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().url("http://" + host + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
-        Call call = okHttpClient.newCall(request);
+        Call call = Utils.getOkHttpClient().newCall(request);
         call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -188,7 +188,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Looper.prepare();
-                Toast.makeText(MainActivity.this, "心跳返回：" + response.body().string(), Toast.LENGTH_LONG).show();
+                try {
+                    Toast.makeText(MainActivity.this, "心跳返回：" + response.body().string(), Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 Looper.loop();
             }
         });
@@ -291,15 +295,15 @@ public class MainActivity extends AppCompatActivity {
         try {
             md5 = MessageDigest.getInstance("MD5");
             byte[] bytes = md5.digest(string.getBytes());
-            String result = "";
+            StringBuilder result = new StringBuilder();
             for (byte b : bytes) {
                 String temp = Integer.toHexString(b & 0xff);
                 if (temp.length() == 1) {
                     temp = "0" + temp;
                 }
-                result += temp;
+                result.append(temp);
             }
-            return result;
+            return result.toString();
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
@@ -323,9 +327,8 @@ public class MainActivity extends AppCompatActivity {
             String t = String.valueOf(new Date().getTime());
             String sign = md5(t + tmp[1]);
 
-            OkHttpClient okHttpClient = new OkHttpClient();
             Request request = new Request.Builder().url("http://" + tmp[0] + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
-            Call call = okHttpClient.newCall(request);
+            Call call = Utils.getOkHttpClient().newCall(request);
             call.enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -334,9 +337,12 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.d(TAG, "onResponse: " + response.body().string());
+                    try {
+                        Log.d(TAG, "onResponse: " + response.body().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     isOk = true;
-
                 }
             });
 

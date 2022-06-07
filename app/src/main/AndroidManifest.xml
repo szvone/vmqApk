@@ -45,11 +45,18 @@
             </intent-filter>
         </service>
 
+        <service android:name="com.vone.vmq.ForegroundServer" />
+
+        <activity
+            android:name="com.vone.vmq.LockShowActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance" />
+
+
         <receiver
             android:name="com.vone.vmq.StartReceive"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.zhou.example.messagelisenterservice.START_SERVICE" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
             <intent-filter>

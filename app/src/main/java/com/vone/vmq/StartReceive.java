@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.PowerManager;
 import android.util.Log;
 
+import com.vone.qrcode.R;
+
 /**
  * Created by user68 on 2018/7/30.
  * <p>
@@ -16,6 +18,7 @@ import android.util.Log;
 
 public class StartReceive extends BroadcastReceiver {
     public static final String START_SETTING_ACTIVITY_ACTION = "android.provider.Telephony.SECRET_CODE";
+    public static final String TRY_CLOSE_ACTIVITY_ACTION = "try_close_activity_action";
 
     static boolean isBootCompleted = false; // 标志是否已经开机发送过通知
 
@@ -27,6 +30,9 @@ public class StartReceive extends BroadcastReceiver {
                 isBootCompleted = true;
                 Utils.sendBatteryNotify(context);
             }
+            NeNotificationService2.enterForeground(context,
+                    context.getString(R.string.app_name),
+                    context.getString(R.string.app_is_start), "");
         }
         if (START_SETTING_ACTIVITY_ACTION.equals(intent.getAction())) {
             Log.d("StartReceive", "start");
