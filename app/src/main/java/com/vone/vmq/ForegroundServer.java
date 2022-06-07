@@ -106,7 +106,12 @@ public class ForegroundServer extends Service {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.d("ForegroundServer", "onResponse  push: 请求失败");
-                            NeNotificationService2.exitForeground(ForegroundServer.this);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NeNotificationService2.exitForeground(ForegroundServer.this);
+                                }
+                            });
                         }
 
                         @Override
@@ -116,7 +121,12 @@ public class ForegroundServer extends Service {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            NeNotificationService2.exitForeground(ForegroundServer.this);
+                            handler.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    NeNotificationService2.exitForeground(ForegroundServer.this);
+                                }
+                            });
                         }
                     });
                 }

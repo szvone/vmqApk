@@ -36,6 +36,7 @@ import okhttp3.Response;
 
 public class NeNotificationService2 extends NotificationListenerService {
     private static String TAG = "NeNotificationService2";
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private String host = "";
     private String key = "";
     private Thread newThread = null;
@@ -44,24 +45,35 @@ public class NeNotificationService2 extends NotificationListenerService {
 
     //申请设备电源锁
     @SuppressLint("InvalidWakeLockTag")
-    public void acquireWakeLock(Context context) {
-        if (null == mWakeLock) {
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            if (pm != null) {
-                mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "WakeLock");
+    public void acquireWakeLock(final Context context) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (null == mWakeLock) {
+                    PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+                    if (pm != null) {
+                        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, "WakeLock");
+                    }
+                }
+                if (null != mWakeLock) {
+                    mWakeLock.acquire(5000);
+                }
             }
-            if (null != mWakeLock) {
-                mWakeLock.acquire(5000);
-            }
-        }
+        });
+
     }
 
     //释放设备电源锁
     public void releaseWakeLock() {
-        if (null != mWakeLock) {
-            mWakeLock.release();
-            mWakeLock = null;
-        }
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                if (null != mWakeLock) {
+                    mWakeLock.release();
+                    mWakeLock = null;
+                }
+            }
+        });
     }
 
     //心跳进程
@@ -166,7 +178,11 @@ public class NeNotificationService2 extends NotificationListenerService {
                             String money = getMoney(content);
                             if (money != null) {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信到账 " + money);
-                                appPush(1, Double.parseDouble(money));
+                                try {
+                                    appPush(1, Double.parseDouble(money));
+                                } catch (Exception e) {
+                                    Log.d(TAG, "app push 错误！！！");
+                                }
                             } else {
                                 Handler handlerThree = new Handler(Looper.getMainLooper());
                                 handlerThree.post(new Runnable() {
@@ -239,7 +255,6 @@ public class NeNotificationService2 extends NotificationListenerService {
         String sign = md5(type + "" + price + t + key);
         final String url = "http://" + host + "/appPush?t=" + t + "&type=" + type + "&price=" + price + "&sign=" + sign;
         Log.d(TAG, "onResponse  push: 开始:" + url);
-
         Request request = new Request.Builder().url(url).method("GET", null).build();
         Call call = Utils.getOkHttpClient().newCall(request);
         call.enqueue(new Callback() {
@@ -270,17 +285,22 @@ public class NeNotificationService2 extends NotificationListenerService {
      * 当通知失败的时候，前台强制通知
      */
     private void foregroundPost(String url) {
-        Context context = NeNotificationService2.this;
+        final Context context = NeNotificationService2.this;
         if (isRunning) {
-            JSONObject extraJson = new JSONObject();
+            final JSONObject extraJson = new JSONObject();
             try {
                 extraJson.put("url", url);
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
             }
-            enterForeground(context,
-                    context.getString(R.string.app_name),
-                    context.getString(R.string.app_is_post), extraJson.toString());
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    enterForeground(context,
+                            context.getString(R.string.app_name),
+                            context.getString(R.string.app_is_post), extraJson.toString());
+                }
+            });
         }
     }
 
