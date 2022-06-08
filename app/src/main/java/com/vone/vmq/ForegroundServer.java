@@ -95,7 +95,9 @@ public class ForegroundServer extends Service {
             if (url == null) {
                 return;
             }
-            startLockActivity(this.getString(R.string.app_is_post));
+            if(jsonObject.optBoolean("show", true)){
+                startLockActivity(this.getString(R.string.app_is_post));
+            }
             // 进行一个短暂的延迟再通知过去
             handler.postDelayed(new Runnable() {
                 @Override

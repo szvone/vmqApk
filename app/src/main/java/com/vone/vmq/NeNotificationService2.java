@@ -95,20 +95,15 @@ public class NeNotificationService2 extends NotificationListenerService {
                     String t = String.valueOf(new Date().getTime());
                     String sign = md5(t + key);
 
-                    Request request = new Request.Builder().url("http://" + host + "/appHeart?t=" + t + "&sign=" + sign).method("GET", null).build();
+                    final String url = "http://" + host + "/appHeart?t=" + t + "&sign=" + sign;
+                    Request request = new Request.Builder().url(url).method("GET", null).build();
                     Call call = Utils.getOkHttpClient().newCall(request);
                     call.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             // final String error = e.getMessage();
-                            handler.post(new Runnable() {
-                                public void run() {
-                                    // Toast.makeText(getApplicationContext(), "心跳状态错误，请检查配置是否正确!" + error, Toast.LENGTH_LONG).show();
-                                    enterForeground(NeNotificationService2.this,
-                                            NeNotificationService2.this.getString(R.string.app_name),
-                                            NeNotificationService2.this.getString(R.string.app_is_heart), "");
-                                }
-                            });
+                            // Toast.makeText(getApplicationContext(), "心跳状态错误，请检查配置是否正确!" + error, Toast.LENGTH_LONG).show();
+                            foregroundHeart(url);
                         }
 
                         //请求成功执行的方法
@@ -118,6 +113,9 @@ public class NeNotificationService2 extends NotificationListenerService {
                                 Log.d(TAG, "onResponse heard: " + response.body().string());
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            }
+                            if (!response.isSuccessful()) {
+                                foregroundHeart(url);
                             }
                         }
                     });
@@ -277,6 +275,27 @@ public class NeNotificationService2 extends NotificationListenerService {
                 releaseWakeLock();
             }
         });
+    }
+
+    private void foregroundHeart(String url) {
+        final Context context = NeNotificationService2.this;
+        if (isRunning) {
+            final JSONObject extraJson = new JSONObject();
+            try {
+                extraJson.put("url", url);
+                extraJson.put("show", false);
+            } catch (JSONException jsonException) {
+                jsonException.printStackTrace();
+            }
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    enterForeground(context,
+                            context.getString(R.string.app_name),
+                            context.getString(R.string.app_is_heart), extraJson.toString());
+                }
+            });
+        }
     }
 
     /**
