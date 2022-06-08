@@ -154,7 +154,8 @@ public class NeNotificationService2 extends NotificationListenerService {
                 if ("com.eg.android.AlipayGphone".equals(pkg)) {
                     if (content != null && !content.equals("")) {
                         if (content.contains("通过扫码向你付款") || content.contains("成功收款")
-                                || title.contains("通过扫码向你付款") || title.contains("成功收款")) {
+                                || title.contains("通过扫码向你付款") || title.contains("成功收款")
+                                || content.contains("店员通") || title.contains("店员通")) {
                             String money = getMoney(content);
                             if (money == null) {
                                 money = getMoney(title);
