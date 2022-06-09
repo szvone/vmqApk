@@ -37,14 +37,23 @@ class Utils {
     private final static String dayType = "yyyy-MM-dd HH:mm:ss";
     private final static String hourType = "HH:mm:ss";
     private static int notifyDay = -1;
+    private static OkHttpClient okHttpClient;
 
-    public static OkHttpClient getOkHttpClient(){
-        return  new OkHttpClient.Builder()
-                .connectTimeout(5, TimeUnit.SECONDS)
-                .readTimeout(5, TimeUnit.SECONDS)
-                .writeTimeout(5, TimeUnit.SECONDS)
-                .build();
+    public static OkHttpClient getOkHttpClient() {
+        if (okHttpClient == null) {
+            synchronized (Utils.class) {
+                if (okHttpClient == null) {
+                    okHttpClient = new OkHttpClient.Builder()
+                            .connectTimeout(5, TimeUnit.SECONDS)
+                            .readTimeout(5, TimeUnit.SECONDS)
+                            .writeTimeout(5, TimeUnit.SECONDS)
+                            .build();
+                }
+            }
+        }
+        return okHttpClient;
     }
+
     static void putStr(Context context, String value) {
         if (context == null) {
             return;
