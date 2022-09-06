@@ -144,15 +144,18 @@ public class NeNotificationService2 extends NotificationListenerService {
         if (notification != null) {
             Bundle extras = notification.extras;
             if (extras != null) {
-                String title = extras.getString(NotificationCompat.EXTRA_TITLE, "");
-                String content = extras.getString(NotificationCompat.EXTRA_TEXT, "");
+                CharSequence _title = extras.getCharSequence(NotificationCompat.EXTRA_TITLE, "");
+                CharSequence _content = extras.getCharSequence(NotificationCompat.EXTRA_TEXT, "");
                 Log.d(TAG, "**********************");
                 Log.d(TAG, "包名:" + pkg);
-                Log.d(TAG, "标题:" + title);
-                Log.d(TAG, "内容:" + content);
+                Log.d(TAG, "标题:" + _title);
+                Log.d(TAG, "内容:" + _content);
                 Log.d(TAG, "**********************");
+                // to string (企业微信之类的 getString 会出错，换getCharSequence)
+                String title = _title.toString();
+                String content = _content.toString();
                 if ("com.eg.android.AlipayGphone".equals(pkg)) {
-                    if (content != null && !content.equals("")) {
+                    if (!content.equals("")) {
                         if (content.contains("通过扫码向你付款") || content.contains("成功收款")
                                 || title.contains("通过扫码向你付款") || title.contains("成功收款")
                                 || content.contains("店员通") || title.contains("店员通")) {
@@ -172,9 +175,11 @@ public class NeNotificationService2 extends NotificationListenerService {
                             }
                         }
                     }
-                } else if ("com.tencent.mm".equals(pkg)) {
-                    if (content != null && !content.equals("")) {
-                        if (title.equals("微信支付") || title.equals("微信收款助手") || title.equals("微信收款商业版")) {
+                } else if ("com.tencent.mm".equals(pkg)
+                        || "com.tencent.wework".equals(pkg)) {
+                    if (!content.equals("")) {
+                        if (title.equals("微信支付") || title.equals("微信收款助手") || title.equals("微信收款商业版")
+                                || (title.equals("对外收款") || title.equals("企业微信")) && content.contains("成功收款")) {
                             String money = getMoney(content);
                             if (money != null) {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信到账 " + money);
@@ -193,7 +198,6 @@ public class NeNotificationService2 extends NotificationListenerService {
 
                         }
                     }
-
                 } else if ("com.vone.qrcode".equals(pkg)) {
                     if (content.equals("这是一条测试推送信息，如果程序正常，则会提示监听权限正常")) {
                         handler.post(new Runnable() {
