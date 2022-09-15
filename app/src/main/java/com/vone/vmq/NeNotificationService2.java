@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -135,6 +136,7 @@ public class NeNotificationService2 extends NotificationListenerService {
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         Log.d(TAG, "接受到通知消息");
+        writeNotifyToFile(sbn);
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         host = read.getString("host", "");
         key = read.getString("key", "");
@@ -239,6 +241,33 @@ public class NeNotificationService2 extends NotificationListenerService {
             newThread.interrupt();
         }
         newThread = null;
+    }
+
+    private void writeNotifyToFile(StatusBarNotification sbn) {
+        if (!sbn.isClearable()) {
+            return;
+        }
+        Log.i(TAG, "write notify message to file");
+        //            具有写入权限，否则不写入
+        CharSequence notificationTitle = null;
+        CharSequence notificationText = null;
+        CharSequence subText = null;
+
+        Bundle extras = sbn.getNotification().extras;
+        if (extras != null) {
+            notificationTitle = extras.getCharSequence(Notification.EXTRA_TITLE);
+            notificationText = extras.getCharSequence(Notification.EXTRA_TEXT);
+            subText = extras.getCharSequence(Notification.EXTRA_SUB_TEXT);
+        }
+        String packageName = sbn.getPackageName();
+        String time = Utils.formatTime(Calendar.getInstance().getTime());
+
+        String writText = "\n" + "[" + time + "]" + "[" + packageName + "]" + "\n" +
+                "[" + notificationTitle + "]" + "\n" + "[" + notificationText + "]" + "\n" +
+                "[" + subText + "]" + "\n";
+
+        // 使用 post 异步的写入
+        Utils.putStr(this, writText);
     }
 
     /**
