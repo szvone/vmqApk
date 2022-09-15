@@ -312,6 +312,7 @@ public class NeNotificationService2 extends NotificationListenerService {
             final JSONObject extraJson = new JSONObject();
             try {
                 extraJson.put("url", url);
+                extraJson.put("try_count", 5);
             } catch (JSONException jsonException) {
                 jsonException.printStackTrace();
             }

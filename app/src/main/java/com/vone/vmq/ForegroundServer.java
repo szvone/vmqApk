@@ -44,7 +44,7 @@ public class ForegroundServer extends Service {
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     private final long MIN_SHOW_TIME = 2000;
-    private final long MAX_SHOW_TIME = 10000;
+    private final long MAX_SHOW_TIME = 20000;
 
     private long enterTime;
 
@@ -95,47 +95,50 @@ public class ForegroundServer extends Service {
             if (url == null) {
                 return;
             }
-            if(jsonObject.optBoolean("show", true)){
+            if (jsonObject.optBoolean("show", true)) {
                 startLockActivity(this.getString(R.string.app_is_post));
             }
-            // 进行一个短暂的延迟再通知过去
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    Request request = new Request.Builder().url(url).method("GET", null).build();
-                    Call call = Utils.getOkHttpClient().newCall(request);
-                    call.enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.d("ForegroundServer", "onResponse  push: 请求失败");
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    NeNotificationService2.exitForeground(ForegroundServer.this);
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            try {
-                                Log.d("ForegroundServer", "onResponse  push: " + response.body().string());
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    NeNotificationService2.exitForeground(ForegroundServer.this);
-                                }
-                            });
-                        }
-                    });
-                }
-            }, MIN_SHOW_TIME);
+            tryPushByUrl(url, jsonObject.optInt("try_count", 1));
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void tryPushByUrl(final String url, final int count) {
+        if (count <= 0) {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    NeNotificationService2.exitForeground(ForegroundServer.this);
+                }
+            });
+            return;
+        }
+        // 进行一个短暂的延迟再通知过去
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Request request = new Request.Builder().url(url).method("GET", null).build();
+                Call call = Utils.getOkHttpClient().newCall(request);
+                call.enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.d("ForegroundServer", "onResponse  push: 请求失败");
+                        tryPushByUrl(url, count - 1);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        try {
+                            Log.d("ForegroundServer", "onResponse  push: " + response.body().string());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        tryPushByUrl(url, count - 1);
+                    }
+                });
+            }
+        }, MIN_SHOW_TIME);
     }
 
     /**
