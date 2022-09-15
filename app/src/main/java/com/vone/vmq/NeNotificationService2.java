@@ -262,7 +262,7 @@ public class NeNotificationService2 extends NotificationListenerService {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.d(TAG, "onResponse  push: 请求失败");
-                foregroundPost(url);
+                foregroundPost(url + "&force_push=true");
                 releaseWakeLock();
             }
 
@@ -275,7 +275,7 @@ public class NeNotificationService2 extends NotificationListenerService {
                 }
                 // 如果返回状态不是成功的。同样要回调
                 if (!response.isSuccessful()) {
-                    foregroundPost(url);
+                    foregroundPost(url + "&force_push=true");
                 }
                 releaseWakeLock();
             }
