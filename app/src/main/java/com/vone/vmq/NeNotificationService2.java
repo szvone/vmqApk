@@ -80,14 +80,11 @@ public class NeNotificationService2 extends NotificationListenerService {
     //心跳进程
     public void initAppHeart() {
         Log.d(TAG, "开始启动心跳线程");
-        if (newThread != null) {
-            return;
-        }
         newThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 Log.d(TAG, "心跳线程启动！");
-                while (isRunning) {
+                while (isRunning && newThread == Thread.currentThread()) {
                     SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
                     host = read.getString("host", "");
                     key = read.getString("key", "");
@@ -385,7 +382,8 @@ public class NeNotificationService2 extends NotificationListenerService {
 
     public static String getMoney(String content) {
         List<String> ss = new ArrayList<>();
-        for (String sss : content.replaceAll("[^0-9.]", ",").split(",")) {
+        for (String sss : content.replaceAll(",", "")
+                .replaceAll("[^0-9.]", ",").split(",")) {
             if (sss.length() > 0)
                 ss.add(sss);
         }
@@ -394,7 +392,6 @@ public class NeNotificationService2 extends NotificationListenerService {
         } else {
             return ss.get(ss.size() - 1);
         }
-
     }
 
     public static String md5(String string) {

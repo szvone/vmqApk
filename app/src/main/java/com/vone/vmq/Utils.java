@@ -66,13 +66,16 @@ class Utils {
         // 为了防止文件无限增大，只保留当天的数据
         if (Calendar.getInstance().get(Calendar.DAY_OF_MONTH) != notifyDay) {
             if (file.exists() && file.canWrite()) {
-                FileUtils fileUtils = new FileUtils();
-                if (fileUtils.deleteFileSafely(file)) {
-                    try {
-                        //noinspection ResultOfMethodCallIgnored
-                        file.createNewFile();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                // 设置最大容量 1M 大小
+                if (file.length() > 1024 * 1024) {
+                    FileUtils fileUtils = new FileUtils();
+                    if (fileUtils.deleteFileSafely(file)) {
+                        try {
+                            //noinspection ResultOfMethodCallIgnored
+                            file.createNewFile();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             }

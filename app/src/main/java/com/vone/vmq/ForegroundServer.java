@@ -109,7 +109,7 @@ public class ForegroundServer extends Service {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    NeNotificationService2.exitForeground(ForegroundServer.this);
+                    NeNotificationService2.exitForeground(App.getContext());
                 }
             });
             return;
@@ -133,8 +133,18 @@ public class ForegroundServer extends Service {
                             Log.d("ForegroundServer", "onResponse  push: " + response.body().string());
                         } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            if (!response.isSuccessful()) {
+                                tryPushByUrl(url, count - 1);
+                            } else {
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        NeNotificationService2.exitForeground(App.getContext());
+                                    }
+                                });
+                            }
                         }
-                        tryPushByUrl(url, count - 1);
                     }
                 });
             }
@@ -210,9 +220,12 @@ public class ForegroundServer extends Service {
     private final Runnable stopServerRunnable = new Runnable() {
         @Override
         public void run() {
-            Intent intent1 = new Intent(ForegroundServer.this, ForegroundServer.class);
-            stopService(intent1);
-            finishLockActivity();
+            try {
+                finishLockActivity();
+                Intent intent1 = new Intent(App.getContext(), ForegroundServer.class);
+                stopService(intent1);
+            } catch (Exception ignore) {
+            }
         }
     };
 
