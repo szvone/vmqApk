@@ -134,6 +134,11 @@ public class NeNotificationService2 extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         Log.d(TAG, "接受到通知消息");
         writeNotifyToFile(sbn);
+        // 微信支付部分通知，会调用两次，导致统计不准确
+        if ((sbn.getNotification().flags & Notification.FLAG_GROUP_SUMMARY) != 0) {
+            Log.d(TAG, "群组摘要通知，忽略");
+            return;
+        }
         SharedPreferences read = getSharedPreferences("vone", MODE_PRIVATE);
         host = read.getString("host", "");
         key = read.getString("key", "");
