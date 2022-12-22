@@ -183,7 +183,8 @@ public class NeNotificationService2 extends NotificationListenerService {
                         || "com.tencent.wework".equals(pkg)) {
                     if (!content.equals("")) {
                         if (title.equals("微信支付") || title.equals("微信收款助手") || title.equals("微信收款商业版")
-                                || (title.equals("对外收款") || title.equals("企业微信")) && content.contains("成功收款")) {
+                                || (title.equals("对外收款") || title.equals("企业微信")) &&
+                                (content.contains("成功收款") || content.contains("收款通知"))) {
                             String money = getMoney(content);
                             if (money != null) {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 微信到账 " + money);
