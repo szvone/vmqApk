@@ -163,9 +163,18 @@ public class NeNotificationService2 extends NotificationListenerService {
                         if (content.contains("通过扫码向你付款") || content.contains("成功收款")
                                 || title.contains("通过扫码向你付款") || title.contains("成功收款")
                                 || content.contains("店员通") || title.contains("店员通")) {
-                            String money = getMoney(content);
-                            if (money == null) {
+                            String money;
+                            // 新版支付宝，会显示积分情况下。先匹配标题上的金额
+                            if (content.contains("商家积分")) {
                                 money = getMoney(title);
+                                if (money == null) {
+                                    money = getMoney(content);
+                                }
+                            } else {
+                                money = getMoney(content);
+                                if (money == null) {
+                                    money = getMoney(title);
+                                }
                             }
                             if (money != null) {
                                 Log.d(TAG, "onAccessibilityEvent: 匹配成功： 支付宝 到账 " + money);
