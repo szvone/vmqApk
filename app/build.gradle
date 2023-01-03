@@ -11,10 +11,27 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        //加载资源
+        Properties properties = new Properties()
+        InputStream inputStream = project.rootProject.file('local.properties').newDataInputStream();
+        properties.load(inputStream)
+
+        signConfig {
+            storeFile file(properties.getProperty("STORE_FILE_NAME"))//签名文件路径，
+            storePassword properties.getProperty("KEY_PASSWORD") //密码
+            keyAlias properties.getProperty("STORE_ALIAS")
+            keyPassword properties.getProperty("KEY_PASSWORD")  //密码
+        }
+    }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.signConfig // 配置debug包的签名,接入微信分享必须验证签名
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.signConfig
         }
     }
 }
@@ -25,7 +42,7 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:26.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    // compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.zxing:core:3.3.0'
     compile 'com.squareup.okhttp3:okhttp:3.7.0'
     compile 'com.squareup.okio:okio:1.12.0'

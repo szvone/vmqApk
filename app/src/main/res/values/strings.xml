@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">V免签监控端</string>
+
+    <string name="click_add_to_battery_white_list">点击加入电池优化白名单</string>
+
+    <string name="app_is_start">应用正在启动中，请稍后</string>
+    <string name="app_is_heart">应用正在连接服务器</string>
+    <string name="app_is_post">应用正在通知服务器发单</string>
+    <string name="click_close_notify">点击关闭通知</string>
+    <string name="is_post_server_tip">当前收到一笔转账信息, 正在通知到服务端</string>
 </resources>

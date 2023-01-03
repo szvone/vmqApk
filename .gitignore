@@ -7,3 +7,6 @@
 /captures
 .externalNativeBuild
 
+*.jks
+/app/authkey.jks
+
